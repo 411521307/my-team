@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<!-- Handoff: Built single-file BMI calculator with responsive layout, instant validation, and WHO category badges; ready to use directly in any browser. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BMI Calculator 🧮</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card-bg: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --radius: 12px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .calculator-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 440px;
+      padding: 28px 24px;
+      border: 1px solid var(--border);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .header p {
+      color: var(--muted);
+      font-size: 0.875rem;
+      margin-top: 6px;
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+    .input-wrapper {
+      position: relative;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 12px 48px 12px 14px;
+      font-size: 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    input[type="number"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    .unit-tag {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 0.875rem;
+      font-weight: 500;
+      pointer-events: none;
+    }
+    .btn-calc {
+      width: 100%;
+      padding: 12px;
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      margin-top: 4px;
+    }
+    .btn-calc:hover {
+      background: var(--primary-hover);
+    }
+    .error-msg {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      font-size: 0.875rem;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-top: 16px;
+      display: none;
+    }
+    .result-section {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      display: none;
+    }
+    .bmi-value-display {
+      font-size: 2.75rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 10px;
+      color: #111827;
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .badge.underweight {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    .badge.normal {
+      background: #dcfce7;
+      color: #15803d;
+    }
+    .badge.overweight {
+      background: #fef3c7;
+      color: #b45309;
+    }
+    .badge.obese {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+    .scale-guide {
+      margin-top: 24px;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .scale-guide table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    .scale-guide td {
+      padding: 4px 0;
+    }
+    .test-shortcuts {
+      margin-top: 16px;
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .shortcut-btn {
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      color: #4b5563;
+      cursor: pointer;
+    }
+    .shortcut-btn:hover {
+      background: #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <main class="calculator-card">
+    <div class="header">
+      <h1>BMI Calculator 🧮</h1>
+      <p>Body Mass Index 計算器</p>
+    </div>
+
+    <form id="bmiForm" onsubmit="event.preventDefault(); calculateBMI();">
+      <div class="form-group">
+        <label for="height">Height 身高</label>
+        <div class="input-wrapper">
+          <input type="number" id="height" placeholder="e.g. 170" step="any" min="1" required>
+          <span class="unit-tag">cm</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="weight">Weight 體重</label>
+        <div class="input-wrapper">
+          <input type="number" id="weight" placeholder="e.g. 65" step="any" min="1" required>
+          <span class="unit-tag">kg</span>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-calc">Calculate 計算</button>
+    </form>
+
+    <div id="errorBox" class="error-msg" role="alert"></div>
+
+    <section id="resultSection" class="result-section" aria-live="polite">
+      <div style="font-size: 0.85rem; color: var(--muted); margin-bottom: 4px;">Your BMI 您的數值</div>
+      <div id="bmiValue" class="bmi-value-display">--</div>
+      <div>
+        <span id="bmiCategory" class="badge">--</span>
+      </div>
+    </section>
+
+    <div class="test-shortcuts">
+      <span style="font-size: 0.75rem; color: var(--muted); align-self: center;">Quick test:</span>
+      <button type="button" class="shortcut-btn" onclick="fillTest(170, 65)">170cm / 65kg</button>
+      <button type="button" class="shortcut-btn" onclick="fillTest(160, 50)">160cm / 50kg</button>
+      <button type="button" class="shortcut-btn" onclick="fillTest(170, 90)">170cm / 90kg</button>
+    </div>
+
+    <div class="scale-guide">
+      <div style="font-weight: 600; margin-bottom: 4px;">WHO Standard / 判讀標準:</div>
+      <table>
+        <tr><td>&lt; 18.5</td><td>Underweight 過輕</td></tr>
+        <tr><td>18.5 – 24.9</td><td>Normal 正常</td></tr>
+        <tr><td>25.0 – 29.9</td><td>Overweight 過重</td></tr>
+        <tr><td>&ge; 30.0</td><td>Obese 肥胖</td></tr>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    function calculateBMI() {
+      const heightInput = document.getElementById('height').value.trim();
+      const weightInput = document.getElementById('weight').value.trim();
+      const errorBox = document.getElementById('errorBox');
+      const resultSection = document.getElementById('resultSection');
+      const bmiValueEl = document.getElementById('bmiValue');
+      const bmiCategoryEl = document.getElementById('bmiCategory');
+
+      errorBox.style.display = 'none';
+      errorBox.textContent = '';
+      resultSection.style.display = 'none';
+
+      if (!heightInput || !weightInput) {
+        showError('Please enter both height and weight. / 請輸入身高與體重。');
+        return;
+      }
+
+      const height = parseFloat(heightInput);
+      const weight = parseFloat(weightInput);
+
+      if (isNaN(height) || isNaN(weight) || height <= 0 || weight <= 0) {
+        showError('Please enter valid positive numbers for height and weight. / 請輸入大於 0 的有效數值。');
+        return;
+      }
+
+      const heightM = height / 100;
+      const rawBmi = weight / (heightM * heightM);
+      const roundedBmi = (Math.round(rawBmi * 10) / 10).toFixed(1);
+      const numBmi = parseFloat(roundedBmi);
+
+      let category = '';
+      let badgeClass = '';
+
+      if (numBmi < 18.5) {
+        category = 'Underweight 過輕';
+        badgeClass = 'underweight';
+      } else if (numBmi <= 24.9) {
+        category = 'Normal 正常';
+        badgeClass = 'normal';
+      } else if (numBmi <= 29.9) {
+        category = 'Overweight 過重';
+        badgeClass = 'overweight';
+      } else {
+        category = 'Obese 肥胖';
+        badgeClass = 'obese';
+      }
+
+      bmiValueEl.textContent = roundedBmi;
+      bmiCategoryEl.textContent = category;
+      bmiCategoryEl.className = 'badge ' + badgeClass;
+
+      resultSection.style.display = 'block';
+    }
+
+    function showError(message) {
+      const errorBox = document.getElementById('errorBox');
+      errorBox.textContent = message;
+      errorBox.style.display = 'block';
+    }
+
+    function fillTest(h, w) {
+      document.getElementById('height').value = h;
+      document.getElementById('weight').value = w;
+      calculateBMI();
+    }
+  </script>
+</body>
+</html>
